@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕳️ Schwarze Löcher</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: #03050a;
+    color: white;
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* STARS */
+  #stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+  .star {
+    position:absolute; background:white; border-radius:50%;
+    animation: twinkle var(--dur) ease-in-out infinite; opacity:0;
+  }
+  @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:var(--op);} }
+
+  /* PROGRESS */
+  .progress-bar {
+    position:fixed; top:0; left:0; height:4px;
+    background: linear-gradient(90deg, #9B59B6, #FF6B9D, #FF9A3C);
+    z-index:100; transition: width 0.3s ease; width:0%;
+  }
+
+  /* NAV DOTS */
+  .nav-dots {
+    position:fixed; right:16px; top:50%; transform:translateY(-50%);
+    z-index:100; display:flex; flex-direction:column; gap:10px;
+  }
+  .nav-dot {
+    width:10px; height:10px; border-radius:50%;
+    background:rgba(255,255,255,0.2); cursor:pointer;
+    transition:all 0.3s; border:2px solid transparent;
+  }
+  .nav-dot.active { background:white; transform:scale(1.3); }
+
+  /* CHAPTERS */
+  .chapter {
+    position:relative; z-index:10; min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:60px 24px; text-align:center;
+  }
+
+  /* INTRO */
+  #ch0 { background: radial-gradient(ellipse at center, #0d0015 0%, #03050a 100%); }
+
+  .big-emoji {
+    font-size: clamp(4rem,12vw,7rem); display:block;
+    margin-bottom:20px; animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-14px) scale(1.05);}
+  }
+
+  h1 {
+    font-size: clamp(2.5rem,8vw,5rem); font-weight:900; line-height:1.1;
+    background: linear-gradient(135deg, #9B59B6, #FF6B9D, #FF9A3C);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; animation: popIn 0.9s cubic-bezier(0.175,0.885,0.32,1.275) both;
+    margin-bottom:14px;
+  }
+  @keyframes popIn { from{opacity:0;transform:scale(0.5);} to{opacity:1;transform:scale(1);} }
+
+  .tagline {
+    font-size:clamp(1rem,3vw,1.3rem); color:rgba(255,255,255,0.5);
+    font-weight:600; animation:fadeUp 1s 0.4s both; margin-bottom:40px;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+
+  .scroll-hint {
+    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    font-size:0.85rem; color:rgba(255,255,255,0.3);
+    animation:bounce2 2s ease-in-out infinite; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase;
+  }
+  @keyframes bounce2 {
+    0%,100%{transform:translateX(-50%) translateY(0);}
+    50%{transform:translateX(-50%) translateY(6px);}
+  }
+
+  /* STEP */
+  .step-number {
+    font-size:0.9rem; letter-spacing:3px; text-transform:uppercase;
+    color:rgba(255,255,255,0.25); margin-bottom:12px; font-weight:700;
+  }
+  .step-emoji { font-size:clamp(3.5rem,10vw,5.5rem); display:block; margin-bottom:18px; }
+  .step-title {
+    font-size:clamp(1.8rem,6vw,3.2rem); font-weight:900;
+    line-height:1.15; margin-bottom:20px; max-width:680px;
+  }
+  .step-body {
+    font-size:clamp(1rem,2.5vw,1.2rem); line-height:1.8;
+    color:rgba(255,255,255,0.78); max-width:600px; margin:0 auto;
+  }
+  .step-body strong { font-weight:800; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background:rgba(255,255,255,0.05); border-radius:24px;
+    padding:22px 28px; margin-top:24px; max-width:580px;
+    border-left:4px solid; text-align:left;
+    font-size:1rem; line-height:1.7; color:rgba(255,255,255,0.78);
+  }
+  .hb-title { font-weight:900; font-size:1.15rem; margin-bottom:8px; }
+
+  /* MINI CARDS */
+  .step-cards {
+    display:flex; flex-wrap:wrap; gap:16px;
+    justify-content:center; margin-top:28px; max-width:700px;
+  }
+  .mini-card {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px; padding:20px 22px; flex:1 1 160px; max-width:200px; text-align:center;
+  }
+  .mini-card .mc-icon { font-size:2.2rem; display:block; margin-bottom:8px; }
+  .mini-card .mc-label { font-size:0.95rem; font-weight:700; color:rgba(255,255,255,0.9); }
+  .mini-card .mc-sub { font-size:0.78rem; color:rgba(255,255,255,0.4); margin-top:4px; }
+
+  /* NAV BUTTONS */
+  .nav-btns { display:flex; gap:12px; justify-content:center; margin-top:36px; flex-wrap:wrap; }
+  .btn {
+    padding:14px 28px; border-radius:99px; border:none;
+    font-family:'Trebuchet MS',sans-serif; font-weight:800;
+    font-size:1rem; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .btn:hover { transform:scale(1.05); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+  .btn-next { color:#03050a; }
+  .btn-prev { background:rgba(255,255,255,0.1); color:white; }
+
+  /* BLACK HOLE ANIMATION */
+  .blackhole-wrap {
+    position:relative; width:220px; height:220px; margin:28px auto;
+  }
+  .bh-core {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:70px; height:70px; border-radius:50%;
+    background:radial-gradient(circle, #000 60%, #1a0025 100%);
+    box-shadow: 0 0 0 4px rgba(155,89,182,0.4), 0 0 60px rgba(155,89,182,0.3);
+    z-index:5;
+  }
+  .bh-ring {
+    position:absolute; top:50%; left:50%;
+    border-radius:50%; border:3px solid;
+    transform:translate(-50%,-50%);
+    animation: ringGlow 3s ease-in-out infinite;
+  }
+  @keyframes ringGlow {
+    0%,100%{opacity:0.3; transform:translate(-50%,-50%) scale(1);}
+    50%{opacity:0.8; transform:translate(-50%,-50%) scale(1.04);}
+  }
+  .bh-particle {
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background:var(--pc); animation:spiral var(--pd) linear infinite;
+    animation-delay:var(--pdelay); top:50%; left:50%;
+    transform-origin:0 0;
+  }
+  @keyframes spiral {
+    from { transform:rotate(var(--pstart)) translateX(var(--pr)) scale(1); opacity:0.9; }
+    to { transform:rotate(calc(var(--pstart) + 720deg)) translateX(10px) scale(0); opacity:0; }
+  }
+
+  /* STAR DEATH ANIM */
+  .star-death {
+    position:relative; width:200px; height:200px; margin:24px auto;
+  }
+  .sd-star {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    font-size:5rem; animation:starPulse 2s ease-in-out infinite;
+  }
+  @keyframes starPulse {
+    0%,100%{transform:translate(-50%,-50%) scale(1); filter:brightness(1);}
+    50%{transform:translate(-50%,-50%) scale(1.15); filter:brightness(1.5);}
+  }
+  .sd-explode {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    font-size:6rem; opacity:0;
+    animation:explodePop 4s ease-in-out infinite;
+    animation-delay:1s;
+  }
+  @keyframes explodePop {
+    0%,30%{opacity:0; transform:translate(-50%,-50%) scale(0.5);}
+    40%{opacity:1; transform:translate(-50%,-50%) scale(1.3);}
+    60%,100%{opacity:0; transform:translate(-50%,-50%) scale(2);}
+  }
+
+  /* SPAGHETTI ANIM */
+  .spaghetti-wrap {
+    margin:24px auto; font-size:3rem;
+    display:flex; gap:20px; justify-content:center; align-items:center;
+  }
+  .sp-arrow { animation:arrowPull 2s ease-in-out infinite; display:inline-block; }
+  @keyframes arrowPull {
+    0%,100%{transform:scaleX(1);}
+    50%{transform:scaleX(1.5);}
+  }
+
+  /* CHAPTER BGS */
+  #ch1 { background:radial-gradient(ellipse at 30% 50%, #0d0015 0%, #03050a 70%); }
+  #ch2 { background:radial-gradient(ellipse at 70% 40%, #150008 0%, #03050a 70%); }
+  #ch3 { background:radial-gradient(ellipse at 40% 60%, #100010 0%, #03050a 70%); }
+  #ch4 { background:radial-gradient(ellipse at 60% 30%, #0a0015 0%, #03050a 70%); }
+  #ch5 { background:radial-gradient(ellipse at 35% 55%, #050015 0%, #03050a 70%); }
+  #ch6 { background:radial-gradient(ellipse at 55% 45%, #100005 0%, #03050a 70%); }
+  #ch7 { background:radial-gradient(ellipse at 50% 50%, #0a000a 0%, #03050a 70%); }
+
+  /* TIMELINE */
+  .timeline { max-width:600px; margin:30px auto 0; text-align:left; }
+  .tl-item { display:flex; gap:16px; margin-bottom:24px; align-items:flex-start; animation:fadeUp 0.6s both; }
+  .tl-dot {
+    width:44px; height:44px; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; margin-top:2px;
+  }
+  .tl-time { font-weight:900; font-size:1rem; margin-bottom:2px; }
+  .tl-text { font-size:0.9rem; color:rgba(255,255,255,0.55); line-height:1.55; }
+
+  @media(max-width:500px) {
+    .step-cards{flex-direction:column;align-items:center;}
+    .mini-card{max-width:100%;}
+    .nav-dots{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div id="stars"></div>
+<div class="nav-dots" id="navDots"></div>
+
+<!-- CH0: INTRO -->
+<div class="chapter" id="ch0">
+  <span class="big-emoji">🕳️</span>
+  <h1>Schwarze Löcher</h1>
+  <p class="tagline">Das Gruseligste und Faszinierendste im ganzen Universum</p>
+  <div class="nav-btns">
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#9B59B6,#FF6B9D);" onclick="goTo(1)">Los geht's! 🚀</button>
+  </div>
+  <div class="scroll-hint">▼ scrollen oder tippen ▼</div>
+</div>
+
+<!-- CH1: WAS IST EIN SCHWARZES LOCH -->
+<div class="chapter" id="ch1">
+  <div class="step-number">Schritt 1 von 6</div>
+  <span class="step-emoji">🤔</span>
+  <h2 class="step-title" style="color:#C77DFF">Was ist ein Schwarzes Loch überhaupt?</h2>
+  <p class="step-body">
+    Stell dir ein Schwarzes Loch vor wie einen <strong>super-starken Staubsauger im Weltraum</strong> – 
+    nur dass er nicht Staub aufsaugt, sondern alles: Steine, Gas, Licht... einfach alles.<br><br>
+    Es ist eine Stelle im Weltraum, wo so unglaublich viel Gewicht auf einem winzigen Punkt zusammengepresst ist, 
+    dass alles in der Nähe hineingezogen wird. <strong>Sogar das Licht kann nicht entkommen!</strong>
+  </p>
+
+  <div class="blackhole-wrap" id="bhAnim">
+    <div class="bh-core"></div>
+    <div class="bh-ring" style="width:100px;height:100px;margin-left:-50px;margin-top:-50px;border-color:rgba(155,89,182,0.6);"></div>
+    <div class="bh-ring" style="width:140px;height:140px;margin-left:-70px;margin-top:-70px;border-color:rgba(255,107,157,0.4);animation-delay:1s;"></div>
+    <div class="bh-ring" style="width:190px;height:190px;margin-left:-95px;margin-top:-95px;border-color:rgba(255,154,60,0.2);animation-delay:2s;"></div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#C77DFF">
+    <div class="hb-title" style="color:#C77DFF">💡 Warum ist es schwarz?</div>
+    Weil kein Licht herauskommt – und ohne Licht sehen wir nichts. 
+    Es ist nicht wirklich ein "Loch" wie in einer Wand, 
+    sondern ein unsichtbarer Bereich im Weltraum, aus dem nichts mehr entkommen kann.
+  </div>
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(0)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#9B59B6,#C77DFF);" onclick="goTo(2)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH2: WIE ENTSTEHT EIN SCHWARZES LOCH -->
+<div class="chapter" id="ch2">
+  <div class="step-number">Schritt 2 von 6</div>
+  <span class="step-emoji">⭐</span>
+  <h2 class="step-title" style="color:#FF6B9D">Wie entsteht ein Schwarzes Loch?</h2>
+  <p class="step-body">
+    Schwarze Löcher entstehen wenn ein <strong>riesiger Stern stirbt</strong>.<br><br>
+    Stell dir einen Stern vor der so gross ist, dass eine Million Sonnen darin passen würden. 
+    Irgendwann – nach Milliarden von Jahren – geht dem Stern der "Brennstoff" aus. 
+    Dann <strong>explodiert er in einer gigantischen Explosion</strong> – eine sogenannte Supernova.<br><br>
+    Was übrig bleibt, fällt in sich zusammen – so stark, 
+    dass es zu einem winzigen Punkt wird. <strong>Das ist das Schwarze Loch.</strong>
+  </p>
+
+  <div class="star-death">
+    <div class="sd-star">⭐</div>
+    <div class="sd-explode">💥</div>
+  </div>
+
+  <div class="step-cards">
+    <div class="mini-card">
+      <span class="mc-icon">⭐</span>
+      <div class="mc-label">Riesiger Stern</div>
+      <div class="mc-sub">Brennt Milliarden Jahre</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">💥</span>
+      <div class="mc-label">Supernova</div>
+      <div class="mc-sub">Grösste Explosion</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🕳️</span>
+      <div class="mc-label">Schwarzes Loch</div>
+      <div class="mc-sub">Entsteht danach</div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(1)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FF6B9D,#FF9A3C);" onclick="goTo(3)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH3: WIE GROSS -->
+<div class="chapter" id="ch3">
+  <div class="step-number">Schritt 3 von 6</div>
+  <span class="step-emoji">📏</span>
+  <h2 class="step-title" style="color:#FF9A3C">Wie gross ist ein Schwarzes Loch?</h2>
+  <p class="step-body">
+    Das ist das Verrückteste: Ein Schwarzes Loch ist <strong>winzig klein</strong> – 
+    aber unvorstellbar schwer.<br><br>
+    Stell dir vor: Unsere Sonne ist so gross wie ein Fussball. 
+    Als Schwarzes Loch wäre sie <strong>so gross wie ein Sandkorn</strong> – 
+    aber genauso schwer wie vorher!<br><br>
+    Es gibt auch riesige Schwarze Löcher. Das Schwarze Loch in der Mitte unserer Milchstrasse 
+    heisst <strong>Sagittarius A*</strong> und ist 4 Millionen Mal schwerer als unsere Sonne.
+  </p>
+
+  <div class="step-cards">
+    <div class="mini-card">
+      <span class="mc-icon">⚽</span>
+      <div class="mc-label">Sonne normal</div>
+      <div class="mc-sub">Gross wie ein Fussball</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🏖️</span>
+      <div class="mc-label">Sonne als Schwarzes Loch</div>
+      <div class="mc-sub">Gross wie ein Sandkorn</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🌌</span>
+      <div class="mc-label">Sagittarius A*</div>
+      <div class="mc-sub">4 Mio. × Sonne</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#FF9A3C">
+    <div class="hb-title" style="color:#FF9A3C">⚖️ Wie kann etwas so klein so schwer sein?</div>
+    Stell dir eine Murmel vor, die so schwer wäre wie ein ganzes Gebirge. 
+    Das Gewicht ist gleich geblieben – aber alles wurde auf einen winzigen Punkt zusammengepresst. 
+    Deshalb ist die Anziehungskraft so stark.
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(2)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FF9A3C,#FFD166);" onclick="goTo(4)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH4: SPAGHETTIFICATION -->
+<div class="chapter" id="ch4">
+  <div class="step-number">Schritt 4 von 6</div>
+  <span class="step-emoji">🍝</span>
+  <h2 class="step-title" style="color:#FFD166">Was passiert wenn man hineinfällt?</h2>
+  <p class="step-body">
+    Wissenschaftler haben einen lustigen Namen dafür erfunden: <strong>Spaghettifizierung!</strong><br><br>
+    Wenn jemand in ein Schwarzes Loch fiele, würde er – genau wie eine Nudel – 
+    in die Länge gezogen werden. Die Anziehungskraft an den Füssen wäre viel stärker 
+    als am Kopf, also würde man immer länger und dünner – <strong>wie ein Spaghetti!</strong><br><br>
+    Keine Sorge – unsere Erde ist weit genug weg von jedem Schwarzen Loch. 😄
+  </p>
+
+  <div class="spaghetti-wrap">
+    <span>🧑</span>
+    <span class="sp-arrow">➡️➡️</span>
+    <span>🕳️</span>
+  </div>
+
+  <div class="highlight-box" style="border-color:#FFD166">
+    <div class="hb-title" style="color:#FFD166">😄 Das klingt nach Science Fiction...</div>
+    Ist es aber nicht! Das haben echte Wissenschaftler ausgerechnet. 
+    Sie nennen es auf Englisch "Spaghettification" – 
+    weil die Streckkraft so extrem ist, dass man wirklich zur Nudel wird. 
+    Die Physik kann manchmal genauso verrückt sein wie ein Comicbuch!
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(3)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FFD166,#06FFB4);" onclick="goTo(5)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH5: ZEIT -->
+<div class="chapter" id="ch5">
+  <div class="step-number">Schritt 5 von 6</div>
+  <span class="step-emoji">⏰</span>
+  <h2 class="step-title" style="color:#06FFB4">Schwarze Löcher verlangsamen die Zeit!</h2>
+  <p class="step-body">
+    Das ist vielleicht das Unglaublichste von allem: <strong>In der Nähe eines Schwarzen Lochs 
+    läuft die Zeit langsamer.</strong><br><br>
+    Wenn du ganz nah an einem Schwarzen Loch wärst und dein Freund weit weg, 
+    dann würde die Zeit für dich langsamer vergehen als für ihn.<br><br>
+    Wenn du 1 Jahr dort verbringen würdest, könnten auf der Erde schon 
+    <strong>viele Jahre vergangen sein!</strong>
+  </p>
+
+  <div style="font-size:3.5rem;margin:24px auto;display:flex;gap:24px;justify-content:center;align-items:center;">
+    <div style="text-align:center;">
+      <div style="animation:slowClock 4s linear infinite;display:inline-block">⏰</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:8px">Nah am Loch<br>Zeit langsam</div>
+    </div>
+    <div style="font-size:2rem;color:rgba(255,255,255,0.3)">≠</div>
+    <div style="text-align:center;">
+      <div style="animation:fastClock 1s linear infinite;display:inline-block">⏰</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:8px">Weit weg<br>Zeit normal</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#06FFB4">
+    <div class="hb-title" style="color:#06FFB4">🤯 Das ist wirklich wahr?</div>
+    Ja! Das hat Albert Einstein schon vor über 100 Jahren ausgerechnet – 
+    und wir haben es mit Experimenten bewiesen. 
+    Sogar unsere Handys und GPS-Geräte müssen das einrechnen, 
+    weil die Zeit auf Satelliten ein kleines bisschen schneller läuft als auf der Erde!
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(4)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#06FFB4,#06D6FF);" onclick="goTo(6)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH6: HABEN WIR EINS GESEHEN -->
+<div class="chapter" id="ch6">
+  <div class="step-number">Schritt 6 von 6</div>
+  <span class="step-emoji">📸</span>
+  <h2 class="step-title" style="color:#06D6FF">Haben Menschen schon eines gesehen?</h2>
+  <p class="step-body">
+    Lange wussten wir nicht wie Schwarze Löcher aussehen – weil sie ja schwarz sind!<br><br>
+    Aber im Jahr <strong>2019</strong> haben Wissenschaftler auf der ganzen Welt 
+    ihre Teleskope gleichzeitig auf dasselbe Schwarze Loch gerichtet. 
+    Es war so weit weg, dass das so schwierig war wie eine <strong>Orange auf dem Mond 
+    zu fotografieren</strong> – von der Erde aus!<br><br>
+    Das Bild zeigt einen <strong>orangefarbenen Ring aus super-heissem Gas</strong> 
+    um einen dunklen Kreis in der Mitte. <strong>Das erste echte Foto eines Schwarzen Lochs!</strong>
+  </p>
+
+  <div style="margin:24px auto;position:relative;width:160px;height:160px;">
+    <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle, #000 35%, #cc4400 55%, #ff8800 70%, #ffcc00 80%, transparent 100%);animation:bhGlow 3s ease-in-out infinite;"></div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#06D6FF">
+    <div class="hb-title" style="color:#06D6FF">👩‍🔬 Wer hat das Foto gemacht?</div>
+    Ein Team von über 200 Wissenschaftlern aus der ganzen Welt – 
+    darunter viele Frauen und Männer, die jahrelang daran gearbeitet haben. 
+    Das Schwarze Loch heisst M87* und ist in einer Galaxie, 
+    die 55 Millionen Lichtjahre von uns entfernt ist!
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(5)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#06D6FF,#9B59B6);" onclick="goTo(7)">Zusammenfassung 🕳️</button>
+  </div>
+</div>
+
+<!-- CH7: ZUSAMMENFASSUNG -->
+<div class="chapter" id="ch7">
+  <span class="step-emoji">📖</span>
+  <h2 class="step-title" style="color:#C77DFF">Alles auf einen Blick</h2>
+
+  <div class="timeline">
+    <div class="tl-item" style="animation-delay:0.1s">
+      <div class="tl-dot" style="background:rgba(155,89,182,0.2);border:2px solid #9B59B6">🕳️</div>
+      <div>
+        <div class="tl-time" style="color:#9B59B6">Was ist es?</div>
+        <div class="tl-text">Ein Ort im Weltraum mit so viel Gewicht, dass alles hineingezogen wird – sogar Licht</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.2s">
+      <div class="tl-dot" style="background:rgba(255,107,157,0.2);border:2px solid #FF6B9D">💥</div>
+      <div>
+        <div class="tl-time" style="color:#FF6B9D">Wie entsteht es?</div>
+        <div class="tl-text">Ein riesiger Stern explodiert (Supernova) und fällt in sich zusammen</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.3s">
+      <div class="tl-dot" style="background:rgba(255,154,60,0.2);border:2px solid #FF9A3C">📏</div>
+      <div>
+        <div class="tl-time" style="color:#FF9A3C">Wie gross?</div>
+        <div class="tl-text">Winzig klein aber unvorstellbar schwer – die Sonne wäre als Schwarzes Loch ein Sandkorn</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.4s">
+      <div class="tl-dot" style="background:rgba(255,209,102,0.2);border:2px solid #FFD166">🍝</div>
+      <div>
+        <div class="tl-time" style="color:#FFD166">Spaghettifizierung</div>
+        <div class="tl-text">Wer hineinfällt wird wie eine Nudel in die Länge gezogen</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.5s">
+      <div class="tl-dot" style="background:rgba(6,255,180,0.2);border:2px solid #06FFB4">⏰</div>
+      <div>
+        <div class="tl-time" style="color:#06FFB4">Zeit wird langsamer</div>
+        <div class="tl-text">In der Nähe eines Schwarzen Lochs vergeht die Zeit langsamer als weit weg</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.6s">
+      <div class="tl-dot" style="background:rgba(6,214,255,0.2);border:2px solid #06D6FF">📸</div>
+      <div>
+        <div class="tl-time" style="color:#06D6FF">Erstes Foto: 2019</div>
+        <div class="tl-text">200 Wissenschaftler aus aller Welt machten das erste echte Bild eines Schwarzen Lochs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns" style="margin-top:40px">
+    <button class="btn btn-prev" onclick="goTo(6)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#9B59B6,#FF6B9D);" onclick="goTo(0)">Von vorne! 🔄</button>
+  </div>
+  <div style="margin-top:24px">
+    <a href="index.html" style="color:rgba(255,255,255,0.3);font-size:0.85rem;text-decoration:none;">← Zurück zur Startseite</a>
+  </div>
+</div>
+
+<style>
+  @keyframes slowClock { from{transform:rotate(0deg);} to{transform:rotate(90deg);} }
+  @keyframes fastClock { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  @keyframes bhGlow {
+    0%,100%{box-shadow:0 0 40px rgba(255,100,0,0.4);}
+    50%{box-shadow:0 0 80px rgba(255,150,0,0.7);}
+  }
+</style>
+
+<script>
+  // Stars
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 200; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*4+2}s;--op:${Math.random()*0.7+0.2};animation-delay:${Math.random()*6}s;`;
+    starsEl.appendChild(s);
+  }
+
+  // Black hole particles
+  const bhEl = document.getElementById('bhAnim');
+  if (bhEl) {
+    const colors = ['#C77DFF','#FF6B9D','#FF9A3C','#FFD166','#ffffff'];
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'bh-particle';
+      const r = 60 + Math.random() * 40;
+      p.style.cssText = `--pc:${colors[i%colors.length]};--pd:${2+Math.random()*3}s;--pdelay:${Math.random()*3}s;--pr:${r}px;--pstart:${Math.random()*360}deg;margin-left:-3px;margin-top:-3px;`;
+      bhEl.appendChild(p);
+    }
+  }
+
+  // Nav
+  const chapters = document.querySelectorAll('.chapter');
+  const dotsEl = document.getElementById('navDots');
+  const total = chapters.length;
+  let current = 0;
+
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i===0?' active':'');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= total) return;
+    current = idx;
+    chapters[idx].scrollIntoView({ behavior: 'smooth' });
+    updateNav();
+  }
+
+  function updateNav() {
+    document.querySelectorAll('.nav-dot').forEach((d,i) => d.classList.toggle('active', i===current));
+    document.getElementById('progressBar').style.width = (current/(total-1)*100) + '%';
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.5) {
+        current = Array.from(chapters).indexOf(e.target);
+        updateNav();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  chapters.forEach(ch => observer.observe(ch));
+
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowDown'||e.key==='ArrowRight') goTo(current+1);
+    if (e.key==='ArrowUp'||e.key==='ArrowLeft') goTo(current-1);
+  });
+</script>
+</body>
+</html>
