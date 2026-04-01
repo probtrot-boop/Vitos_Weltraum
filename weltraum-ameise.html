@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐜 Die Weltraum-Ameise aus Naters</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --space: #0a0e1a;
+    --deep: #070b14;
+    --star1: #ffffff;
+    --accent-yellow: #FFD166;
+    --accent-orange: #FF9A3C;
+    --accent-blue: #06D6FF;
+    --accent-green: #06FFB4;
+    --accent-pink: #FF6B9D;
+    --accent-purple: #C77DFF;
+    --card-bg: rgba(255,255,255,0.05);
+    --card-border: rgba(255,255,255,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* STARFIELD */
+  #stars {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: var(--op); transform: scale(1); }
+  }
+
+  /* HEADER */
+  header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+  .ant-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    animation: titlePop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes titlePop {
+    from { opacity: 0; transform: scale(0.5) rotate(-5deg); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .subtitle {
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: rgba(255,255,255,0.6);
+    margin-top: 12px;
+    font-weight: 600;
+    animation: fadeUp 1s 0.3s both;
+  }
+  .ant-emoji {
+    font-size: clamp(3rem, 8vw, 5rem);
+    display: block;
+    margin-bottom: 10px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ANT SIZE BOX */
+  .ant-size-box {
+    position: relative;
+    z-index: 10;
+    max-width: 700px;
+    margin: 0 auto 50px;
+    padding: 0 20px;
+    animation: fadeUp 1s 0.5s both;
+  }
+  .size-card {
+    background: linear-gradient(135deg, rgba(255,209,102,0.15), rgba(255,154,60,0.1));
+    border: 2px solid rgba(255,209,102,0.3);
+    border-radius: 24px;
+    padding: 24px 30px;
+    text-align: center;
+  }
+  .size-card h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--accent-yellow);
+    margin-bottom: 12px;
+  }
+  .size-card p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.85);
+  }
+  .size-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .size-item {
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+  }
+  .size-circle {
+    border-radius: 50%;
+    margin: 0 auto 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    position: relative;
+    z-index: 10;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    text-align: center;
+    margin: 20px 0 30px;
+    color: var(--accent-blue);
+    padding: 0 20px;
+  }
+
+  /* CARDS GRID */
+  .cards {
+    position: relative;
+    z-index: 10;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: cardIn 0.6s both;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-color);
+    border-radius: 28px 28px 0 0;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-color) 0%, transparent 70%);
+    opacity: 0.08;
+    pointer-events: none;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  .card-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--accent-color);
+    margin-bottom: 4px;
+  }
+  .card-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  .distance-bar-wrap {
+    margin: 12px 0;
+  }
+  .distance-label {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  .distance-bar {
+    height: 8px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .distance-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent-color);
+    transform-origin: left;
+    animation: fillBar 1.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: var(--delay, 0.3s);
+  }
+  @keyframes fillBar {
+    from { transform: scaleX(0); opacity: 0; }
+    to { transform: scaleX(1); opacity: 1; }
+  }
+
+  .main-fact {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 14px 0;
+  }
+  .main-fact-number {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--accent-color);
+    line-height: 1;
+  }
+  .main-fact-unit {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .story-text {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.75);
+    margin-top: 14px;
+    font-style: italic;
+    border-left: 3px solid var(--accent-color);
+    padding-left: 12px;
+  }
+  .story-text strong {
+    color: var(--accent-color);
+    font-style: normal;
+  }
+
+  .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    margin-top: 12px;
+  }
+
+  /* SCALE BAR */
+  .scale-section {
+    position: relative;
+    z-index: 10;
+    max-width: 1000px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+  }
+  .scale-bar-container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    padding: 30px;
+    overflow: hidden;
+  }
+  .scale-bar-container h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: var(--accent-green);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .scale-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .scale-icon { font-size: 1.4rem; width: 32px; flex-shrink: 0; text-align: center; }
+  .scale-name {
+    width: 140px;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+  }
+  .scale-track {
+    flex: 1;
+    height: 18px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .scale-fill {
+    height: 100%;
+    border-radius: 99px;
+    position: relative;
+    min-width: 4px;
+    animation: fillBar 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+  .scale-value {
+    width: 110px;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.45);
+    font-weight: 600;
+    text-align: right;
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255,255,255,0.25);
+    font-size: 0.85rem;
+  }
+
+  /* MODAL OVERLAY */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #0f1628;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 32px;
+    padding: 36px;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.2); }
+  .modal-emoji { font-size: 4rem; display: block; margin-bottom: 12px; }
+  .modal-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+  .modal-body {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.8);
+  }
+  .modal-highlight {
+    background: rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 14px 0;
+    font-size: 1.05rem;
+  }
+
+  @media (max-width: 600px) {
+    .cards { grid-template-columns: 1fr; }
+    .scale-name { width: 90px; font-size: 0.8rem; }
+    .scale-value { width: 80px; font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<header>
+  <span class="ant-emoji">🐜</span>
+  <h1 class="ant-title">Die Weltraum-Ameise<br>aus Naters</h1>
+  <p class="subtitle">Wie weit ist der Weltraum wirklich? Eine Ameise erklärt es dir.</p>
+</header>
+
+<!-- ANT = EARTH SIZE BOX -->
+<div class="ant-size-box">
+  <div class="size-card">
+    <h2>🌍 Die Ameise = die Erde</h2>
+    <p>Stell dir vor: <strong>Die Erde ist so gross wie eine Ameise.</strong><br>
+    Dann ist die Sonne so gross wie ein Fussball – und steht beim Friedhof am Dorfrand.<br>
+    Alles was du hier siehst, ist in diesem Massstab.</p>
+    <div class="size-visual">
+      <div class="size-item">
+        <div class="size-circle" style="width:8px;height:8px;background:#06D6FF;border:2px solid #06D6FF;"></div>
+        🐜 Ameise = Erde<br><span style="color:var(--accent-blue)">2 mm</span>
+      </div>
+      <div class="size-item" style="font-size:1.5rem">→</div>
+      <div class="size-item">
+        <div class="size-circle" style="width:30px;height:30px;background:radial-gradient(circle, #FFD166, #FF9A3C);"></div>
+        ⚽ Fussball = Sonne<br><span style="color:var(--accent-yellow)">22 cm</span>
+      </div>
+      <div class="size-item" style="font-size:1.5rem">→</div>
+      <div class="size-item">
+        <div class="size-circle" style="width:6px;height:6px;background:#aaa;border:2px solid #aaa;"></div>
+        🔵 Stecknadelkopf = Mond<br><span style="color:#aaa">0.5 mm</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCALE BAR -->
+<div class="scale-section">
+  <div class="scale-bar-container">
+    <h3>📏 Alle Distanzen im Vergleich</h3>
+    <div class="scale-row">
+      <span class="scale-icon">🌕</span>
+      <span class="scale-name">Mond</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:0.5%;background:#aaaaaa;--delay:0.2s"></div>
+      </div>
+      <span class="scale-value">60 mm</span>
+    </div>
+    <div class="scale-row">
+      <span class="scale-icon">☀️</span>
+      <span class="scale-name">Sonne</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:2%;background:#FFD166;--delay:0.3s"></div>
+      </div>
+      <span class="scale-value">23.5 m</span>
+    </div>
+    <div class="scale-row">
+      <span class="scale-icon">🔴</span>
+      <span class="scale-name">Mars</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:3%;background:#FF6B4A;--delay:0.4s"></div>
+      </div>
+      <span class="scale-value">35 m</span>
+    </div>
+    <div class="scale-row">
+      <span class="scale-icon">🪐</span>
+      <span class="scale-name">Jupiter</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:10%;background:#C9A96E;--delay:0.5s"></div>
+      </div>
+      <span class="scale-value">122 m</span>
+    </div>
+    <div class="scale-row">
+      <span class="scale-icon">💍</span>
+      <span class="scale-name">Saturn</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:18%;background:#E8D5A3;--delay:0.6s"></div>
+      </div>
+      <span class="scale-value">220 m</span>
+    </div>
+    <div class="scale-row">
+      <span class="scale-icon">⭐</span>
+      <span class="scale-name">Proxima Cen.</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:55%;background:#06FFB4;--delay:0.7s"></div>
+      </div>
+      <span class="scale-value">63'000 km</span>
+    </div>
+    <div class="scale-row">
+      <span class="scale-icon">🌌</span>
+      <span class="scale-name">Milchstrasse</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:85%;background:#C77DFF;--delay:0.8s"></div>
+      </div>
+      <span class="scale-value">1.5 Mrd km</span>
+    </div>
+    <div class="scale-row">
+      <span class="scale-icon">🌀</span>
+      <span class="scale-name">Andromeda</span>
+      <div class="scale-track">
+        <div class="scale-fill" style="width:100%;background:#FF6B9D;--delay:0.9s"></div>
+      </div>
+      <span class="scale-value">37 Mrd km</span>
+    </div>
+  </div>
+</div>
+
+<p class="section-title">👆 Tippe auf eine Karte zum Vorlesen!</p>
+
+<!-- CARDS -->
+<div class="cards">
+
+  <!-- MOND -->
+  <div class="card" style="--accent-color:#aaaaaa; animation-delay:0.1s" onclick="openModal('mond')">
+    <span class="card-emoji">🌕</span>
+    <div class="card-name">Der Mond</div>
+    <div class="card-subtitle">Unser Nachbar</div>
+    <div class="main-fact">
+      <div class="main-fact-number">1 Monat</div>
+      <div class="main-fact-unit">täglich Naters ↔ Brig laufen</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 60 mm</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.4s"></div></div>
+    </div>
+    <p class="story-text">Der Mond ist ein kleiner <strong>Stecknadelkopf</strong>, der 6 cm neben der Ameise schwebt.</p>
+    <span class="tag">🐜 Naters ↔ Brig × 30 Tage</span>
+  </div>
+
+  <!-- SONNE -->
+  <div class="card" style="--accent-color:#FFD166; animation-delay:0.2s" onclick="openModal('sonne')">
+    <span class="card-emoji">☀️</span>
+    <div class="card-name">Die Sonne</div>
+    <div class="card-subtitle">Unser Stern</div>
+    <div class="main-fact">
+      <div class="main-fact-number">32 Jahre</div>
+      <div class="main-fact-unit">täglich Naters ↔ Brig laufen</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 23.5 m</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.5s"></div></div>
+    </div>
+    <p class="story-text">Die Sonne ist ein <strong>Fussball beim Friedhof</strong> – 25 Meter von der Ameise entfernt.</p>
+    <span class="tag">🐜 Naters ↔ Brig × 32 Jahre</span>
+  </div>
+
+  <!-- MARS -->
+  <div class="card" style="--accent-color:#FF6B4A; animation-delay:0.3s" onclick="openModal('mars')">
+    <span class="card-emoji">🔴</span>
+    <div class="card-name">Der Mars</div>
+    <div class="card-subtitle">Der rote Planet</div>
+    <div class="main-fact">
+      <div class="main-fact-number">48 Jahre</div>
+      <div class="main-fact-unit">täglich Naters ↔ Brig laufen</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 35 m</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.5s"></div></div>
+    </div>
+    <p class="story-text">Der Mars steht bei der <strong>nächsten Kurve Richtung Brig</strong> – etwas weiter als die Sonne.</p>
+    <span class="tag">🐜 Naters ↔ Brig × 48 Jahre</span>
+  </div>
+
+  <!-- JUPITER -->
+  <div class="card" style="--accent-color:#C9A96E; animation-delay:0.35s" onclick="openModal('jupiter')">
+    <span class="card-emoji">🪐</span>
+    <div class="card-name">Jupiter</div>
+    <div class="card-subtitle">Der Riese</div>
+    <div class="main-fact">
+      <div class="main-fact-number">167 Jahre</div>
+      <div class="main-fact-unit">täglich Naters ↔ Brig laufen</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 122 m</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.5s"></div></div>
+    </div>
+    <p class="story-text">Jupiter steht fast beim <strong>Brig Bahnhof</strong> – die Ameise wäre eine Murmel daneben.</p>
+    <span class="tag">🐜 Naters ↔ Brig × 167 Jahre</span>
+  </div>
+
+  <!-- SATURN -->
+  <div class="card" style="--accent-color:#E8D5A3; animation-delay:0.4s" onclick="openModal('saturn')">
+    <span class="card-emoji">💍</span>
+    <div class="card-name">Saturn</div>
+    <div class="card-subtitle">Mit den Ringen</div>
+    <div class="main-fact">
+      <div class="main-fact-number">301 Jahre</div>
+      <div class="main-fact-unit">täglich Naters ↔ Brig laufen</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 220 m</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.5s"></div></div>
+    </div>
+    <p class="story-text">Saturn steht beim <strong>Brig Bahnhof</strong> – seit Mozart lebte niemand mehr, als die Ameise losmüsste.</p>
+    <span class="tag">🐜 Naters ↔ Brig × 301 Jahre</span>
+  </div>
+
+  <!-- PROXIMA -->
+  <div class="card" style="--accent-color:#06FFB4; animation-delay:0.5s" onclick="openModal('proxima')">
+    <span class="card-emoji">⭐</span>
+    <div class="card-name">Proxima Centauri</div>
+    <div class="card-subtitle">Nächster Stern</div>
+    <div class="main-fact">
+      <div class="main-fact-number">6'400 Jahre</div>
+      <div class="main-fact-unit">täglich Naters ↔ Tokio laufen</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 63'000 km</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.5s"></div></div>
+    </div>
+    <p class="story-text">Täglich <strong>Naters nach Tokio und zurück</strong> – und trotzdem 6'400 Jahre. Als die Ameise starten müsste, bauten die Ägypter gerade die Pyramiden.</p>
+    <span class="tag">🐜 Naters ↔ Tokio täglich × 6'400 Jahre</span>
+  </div>
+
+  <!-- MILCHSTRASSE -->
+  <div class="card" style="--accent-color:#C77DFF; animation-delay:0.6s" onclick="openModal('milch')">
+    <span class="card-emoji">🌌</span>
+    <div class="card-name">Milchstrasse</div>
+    <div class="card-subtitle">Unsere Galaxie</div>
+    <div class="main-fact">
+      <div class="main-fact-number">51 Mio Jahre</div>
+      <div class="main-fact-unit">1000× täglich um die Erde</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 1.5 Milliarden km</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.5s"></div></div>
+    </div>
+    <p class="story-text">Die Ameise fliegt wie ein <strong>Düsenjet 1'000 Mal täglich um die Erde</strong> – und braucht noch 51 Millionen Jahre. Als sie losgeflogen wäre, gab es noch Dinosaurier!</p>
+    <span class="tag">🦕 Als sie startete, lebten Dinosaurier</span>
+  </div>
+
+  <!-- ANDROMEDA -->
+  <div class="card" style="--accent-color:#FF6B9D; animation-delay:0.7s" onclick="openModal('andromeda')">
+    <span class="card-emoji">🌀</span>
+    <div class="card-name">Andromeda</div>
+    <div class="card-subtitle">Nachbargalaxie</div>
+    <div class="main-fact">
+      <div class="main-fact-number">1.25 Mrd Jahre</div>
+      <div class="main-fact-unit">1000× täglich um die Erde</div>
+    </div>
+    <div class="distance-bar-wrap">
+      <div class="distance-label">Modell-Distanz: 37 Milliarden km</div>
+      <div class="distance-bar"><div class="distance-fill" style="width:100%;--delay:0.5s"></div></div>
+    </div>
+    <p class="story-text">Gleicher Düsenjet, gleiche Strecke – aber <strong>1.25 Milliarden Jahre</strong>. Das ist ein Viertel des gesamten Alters der Erde.</p>
+    <span class="tag">🌍 ¼ des Erdalters als Reisezeit</span>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <span class="modal-emoji" id="mEmoji"></span>
+    <div class="modal-title" id="mTitle" style="color: var(--modal-color)"></div>
+    <div class="modal-highlight" id="mHighlight"></div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<footer>
+  🐜 Eine Ameise aus Naters erklärt das Universum · Massstab: Erde = 2 mm
+</footer>
+
+<script>
+  // STARS
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 200; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${Math.random()*4+2}s;
+      --op:${Math.random()*0.8+0.2};
+      animation-delay:${Math.random()*5}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // MODAL DATA
+  const data = {
+    mond: {
+      emoji: '🌕', title: 'Der Mond', color: '#aaaaaa',
+      highlight: '⏱️ 1 Monat – täglich Naters ↔ Brig',
+      body: 'Der Mond ist der einzige Ort im Weltall, den Menschen schon besucht haben. Er ist aus einem Stück der Erde entstanden – vor langer Zeit hat ein riesiger Felsbrocken die Erde getroffen, und der Schutt ist zu unserem Mond geworden. Im Modell ist er ein kleiner Stecknadelkopf, der 6 cm neben der Ameise schwebt.'
+    },
+    sonne: {
+      emoji: '☀️', title: 'Die Sonne', color: '#FFD166',
+      highlight: '⏱️ 32 Jahre – täglich Naters ↔ Brig',
+      body: 'Die Sonne ist so gross wie ein Fussball und steht 25 Meter von der Ameise entfernt – ungefähr beim Friedhof am Dorfrand. Sie ist so heiss, dass man sich ihr nie nähern könnte. Alle Planeten drehen sich um sie herum, weil sie so schwer ist, dass sie alles anzieht.'
+    },
+    mars: {
+      emoji: '🔴', title: 'Der Mars', color: '#FF6B4A',
+      highlight: '⏱️ 48 Jahre – täglich Naters ↔ Brig',
+      body: 'Der Mars ist der rote Planet – er hat roten Staub überall. Menschen träumen davon, ihn eines Tages zu besuchen. Im Modell steht er bei der nächsten Kurve Richtung Brig, etwas weiter als die Sonne.'
+    },
+    jupiter: {
+      emoji: '🪐', title: 'Jupiter', color: '#C9A96E',
+      highlight: '⏱️ 167 Jahre – täglich Naters ↔ Brig',
+      body: 'Jupiter ist der grösste Planet in unserem Sonnensystem. Er ist so gross, dass über 1300 Erden hineinpassen würden! Im Modell ist er eine kleine Murmel und steht fast beim Brig Bahnhof.'
+    },
+    saturn: {
+      emoji: '💍', title: 'Saturn', color: '#E8D5A3',
+      highlight: '⏱️ 301 Jahre – täglich Naters ↔ Brig',
+      body: 'Saturn hat die schönsten Ringe im ganzen Sonnensystem – aus Eis und Gestein. Als die Ameise aus Naters loswandern müsste, lebte noch kein einziger Mensch, der heute noch am Leben ist.'
+    },
+    proxima: {
+      emoji: '⭐', title: 'Proxima Centauri', color: '#06FFB4',
+      highlight: '⏱️ 6\'400 Jahre – täglich Naters ↔ Tokio',
+      body: 'Proxima Centauri ist der nächste Stern nach unserer Sonne – und trotzdem unvorstellbar weit weg. Die Ameise müsste jeden Tag von Naters bis nach Tokio (Japan!) laufen und zurück – und das 6\'400 Jahre lang. Als sie losmüsste, bauten die alten Ägypter gerade die Pyramiden.'
+    },
+    milch: {
+      emoji: '🌌', title: 'Milchstrasse', color: '#C77DFF',
+      highlight: '⏱️ 51 Millionen Jahre – 1000× täglich um die Erde',
+      body: 'Die Milchstrasse ist unsere Heimat-Galaxie. Sie enthält über 200 Milliarden Sterne! Stell dir vor, die Ameise fliegt wie ein Jet und umrundet die ganze Erde 1\'000 Mal pro Tag. Trotzdem würde sie 51 Millionen Jahre brauchen. Als sie gestartet wäre, liefen noch Dinosaurier auf der Erde herum.'
+    },
+    andromeda: {
+      emoji: '🌀', title: 'Andromeda', color: '#FF6B9D',
+      highlight: '⏱️ 1.25 Milliarden Jahre – 1000× täglich um die Erde',
+      body: 'Andromeda ist unsere nächste Nachbar-Galaxie – sie enthält eine Billion Sterne! Mit demselben Düsenjet-Tempo bräuchte die Ameise 1.25 Milliarden Jahre. Die Erde ist selbst erst 4.5 Milliarden Jahre alt – das wäre also ein Viertel des gesamten Lebens unserer Erde als Reisezeit.'
+    }
+  };
+
+  function openModal(key) {
+    const d = data[key];
+    document.getElementById('mEmoji').textContent = d.emoji;
+    document.getElementById('mTitle').textContent = d.title;
+    document.getElementById('mTitle').style.color = d.color;
+    document.getElementById('mHighlight').textContent = d.highlight;
+    document.getElementById('mHighlight').style.borderLeft = `4px solid ${d.color}`;
+    document.getElementById('mHighlight').style.paddingLeft = '12px';
+    document.getElementById('mBody').textContent = d.body;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (!e || e.target === document.getElementById('modal') || e.target.className === 'modal-close') {
+      document.getElementById('modal').classList.remove('open');
+    }
+  }
+
+  // Staggered card animation
+  document.querySelectorAll('.card').forEach((card, i) => {
+    card.style.animationDelay = `${0.1 + i * 0.08}s`;
+  });
+</script>
+</body>
+</html>

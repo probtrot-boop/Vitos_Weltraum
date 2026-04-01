@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 Wie ist die Erde entstanden?</title>
+<style>
+
+
+  :root {
+    --bg: #05080f;
+    --accent1: #FF9A3C;
+    --accent2: #06D6FF;
+    --accent3: #06FFB4;
+    --accent4: #FF6B9D;
+    --accent5: #C77DFF;
+    --accent6: #FFD166;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: white;
+    font-family: 'Nunito', 'Trebuchet MS', 'Comic Sans MS', Helvetica, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* STARS */
+  #stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity:0; }
+    50% { opacity: var(--op); }
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+    z-index: 100;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* NAV DOTS */
+  .nav-dots {
+    position: fixed;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .nav-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+  }
+  .nav-dot.active {
+    background: white;
+    transform: scale(1.3);
+  }
+
+  /* CHAPTERS */
+  .chapter {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    text-align: center;
+  }
+
+  /* CHAPTER: INTRO */
+  #ch0 { background: radial-gradient(ellipse at center, #0d1525 0%, #05080f 100%); }
+
+  .intro-title {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+    font-size: clamp(2.8rem, 9vw, 5.5rem);
+    line-height: 1.1;
+    background: linear-gradient(135deg, #FF9A3C, #FFD166, #FF6B9D);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: popIn 1s cubic-bezier(0.175,0.885,0.32,1.275) both;
+  }
+  .intro-sub {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: rgba(255,255,255,0.6);
+    margin-top: 16px;
+    font-weight: 600;
+    animation: fadeUp 1s 0.4s both;
+  }
+  .big-emoji {
+    font-size: clamp(4rem, 12vw, 7rem);
+    display: block;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-12px) rotate(3deg); }
+  }
+  @keyframes popIn {
+    from { opacity:0; transform:scale(0.5); }
+    to { opacity:1; transform:scale(1); }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(24px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.3);
+    animation: bounce 2s ease-in-out infinite;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  @keyframes bounce {
+    0%,100% { transform:translateX(-50%) translateY(0); }
+    50% { transform:translateX(-50%) translateY(6px); }
+  }
+
+  /* STEP CHAPTERS */
+  .step-number {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 12px;
+  }
+  .step-emoji {
+    font-size: clamp(4rem, 12vw, 6rem);
+    display: block;
+    margin-bottom: 20px;
+  }
+  .step-title {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    line-height: 1.15;
+    margin-bottom: 20px;
+    max-width: 700px;
+  }
+  .step-body {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    line-height: 1.75;
+    color: rgba(255,255,255,0.8);
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .step-body strong {
+    font-weight: 800;
+  }
+
+  /* CARDS IN STEP */
+  .step-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 28px;
+    max-width: 700px;
+  }
+  .mini-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 20px 22px;
+    flex: 1 1 180px;
+    max-width: 220px;
+    text-align: center;
+  }
+  .mini-card .mc-icon { font-size: 2.2rem; display:block; margin-bottom:8px; }
+  .mini-card .mc-label { font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.9); }
+  .mini-card .mc-sub { font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-top:4px; }
+
+  /* VISUAL DIVIDER */
+  .divider {
+    width: 60px;
+    height: 4px;
+    border-radius: 99px;
+    margin: 24px auto;
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: rgba(255,255,255,0.06);
+    border-radius: 24px;
+    padding: 22px 28px;
+    margin-top: 24px;
+    max-width: 580px;
+    border-left: 4px solid;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.8);
+  }
+  .highlight-box .hb-title {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  /* ANIMATION: DUST CLOUD */
+  .dust-animation {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+  }
+  .dust-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,180,80,0.6);
+    animation: drift var(--d) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) scale(1); opacity:0.6; }
+    25% { transform: translate(var(--tx1), var(--ty1)) scale(0.8); opacity:0.3; }
+    50% { transform: translate(var(--tx2), var(--ty2)) scale(1.2); opacity:0.8; }
+    75% { transform: translate(var(--tx3), var(--ty3)) scale(0.9); opacity:0.5; }
+  }
+
+  /* PLANET PULSE */
+  .planet-anim {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    margin: 24px auto;
+    position: relative;
+    animation: planetPulse 3s ease-in-out infinite;
+  }
+  @keyframes planetPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 0 40px rgba(255,100,30,0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(255,100,30,0.8); }
+  }
+  .planet-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    animation: ringPulse 3s ease-in-out infinite;
+  }
+  @keyframes ringPulse {
+    0%,100% { transform: scale(1); opacity:0.3; }
+    50% { transform: scale(1.2); opacity:0; }
+  }
+
+  /* COLLISION ANIM */
+  .collision-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 24px auto;
+    overflow: hidden;
+    width: 260px;
+    height: 120px;
+    position: relative;
+  }
+  .col-earth {
+    font-size: 4rem;
+    position: absolute;
+    left: 10px;
+    animation: earthWait 4s ease-in-out infinite;
+  }
+  .col-theia {
+    font-size: 3rem;
+    position: absolute;
+    right: 10px;
+    animation: theiaHit 4s ease-in-out infinite;
+  }
+  .col-boom {
+    font-size: 3rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: boomFlash 4s ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes earthWait {
+    0%,40% { left:10px; }
+    50%,60% { left:80px; }
+    70%,100% { left:10px; }
+  }
+  @keyframes theiaHit {
+    0%,40% { right:10px; opacity:1; }
+    50% { right:80px; opacity:0; }
+    60%,100% { right:10px; opacity:0; }
+    70% { opacity:1; }
+  }
+  @keyframes boomFlash {
+    0%,45% { opacity:0; transform:translateX(-50%) scale(0.5); }
+    50% { opacity:1; transform:translateX(-50%) scale(1.5); }
+    60%,100% { opacity:0; transform:translateX(-50%) scale(0.5); }
+  }
+
+  /* ORBIT ANIMATION */
+  .orbit-wrap {
+    position: relative;
+    width: 180px; height: 180px;
+    margin: 24px auto;
+  }
+  .orbit-earth {
+    position: absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    font-size: 2.8rem;
+    z-index: 2;
+  }
+  .orbit-ring {
+    position: absolute;
+    inset: 10px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255,255,255,0.2);
+  }
+  .orbit-moon {
+    position: absolute;
+    font-size: 1.6rem;
+    top: 50%; left: 50%;
+    transform-origin: 0 0;
+    animation: orbit 6s linear infinite;
+  }
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(75px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(75px) rotate(-360deg); }
+  }
+
+  /* CHAPTER BGs */
+  #ch1 { background: radial-gradient(ellipse at 30% 50%, #1a0d00 0%, #05080f 70%); }
+  #ch2 { background: radial-gradient(ellipse at 70% 50%, #001a1a 0%, #05080f 70%); }
+  #ch3 { background: radial-gradient(ellipse at 30% 70%, #1a0800 0%, #05080f 70%); }
+  #ch4 { background: radial-gradient(ellipse at 60% 30%, #0d001a 0%, #05080f 70%); }
+  #ch5 { background: radial-gradient(ellipse at 40% 60%, #001a0d 0%, #05080f 70%); }
+  #ch6 { background: radial-gradient(ellipse at 50% 50%, #00101a 0%, #05080f 70%); }
+  #ch7 { background: radial-gradient(ellipse at 50% 50%, #0a0010 0%, #05080f 70%); }
+  #ch8 { background: radial-gradient(ellipse at 50% 40%, #0a1000 0%, #05080f 70%); }
+
+  /* TIMELINE (last chapter) */
+  .timeline {
+    max-width: 600px;
+    margin: 30px auto 0;
+    text-align: left;
+  }
+  .tl-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    align-items: flex-start;
+    animation: fadeUp 0.6s both;
+  }
+  .tl-dot {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tl-content {}
+  .tl-time {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+  .tl-text {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+  }
+
+  /* NAV BUTTONS */
+  .nav-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 14px 28px;
+    border-radius: 99px;
+    border: none;
+    font-family: 'Trebuchet MS', Helvetica, sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .btn-next { color: #05080f; }
+  .btn-prev { background: rgba(255,255,255,0.1); color: white; }
+
+  @media(max-width:500px) {
+    .step-cards { flex-direction: column; align-items: center; }
+    .mini-card { max-width: 100%; }
+    .nav-dots { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div id="stars"></div>
+
+<div class="nav-dots" id="navDots"></div>
+
+<!-- CH 0: INTRO -->
+<div class="chapter" id="ch0">
+  <span class="big-emoji">🌍</span>
+  <h1 class="intro-title">Wie ist die Erde<br>entstanden?</h1>
+  <p class="intro-sub">Eine Geschichte, die vor 4.5 Milliarden Jahren begann</p>
+  <div class="nav-btns">
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FF9A3C,#FFD166);" onclick="goTo(1)">Los geht's! 🚀</button>
+  </div>
+  <div class="scroll-hint">▼ scrollen oder tippen ▼</div>
+</div>
+
+<!-- CH 1: URKNALL / STAUB -->
+<div class="chapter" id="ch1">
+  <div class="step-number">Schritt 1 von 7</div>
+  <span class="step-emoji">💥</span>
+  <h2 class="step-title" style="color:#FF9A3C">Am Anfang war alles Staub</h2>
+  <p class="step-body">
+    Vor sehr, sehr langer Zeit – vor <strong>4.6 Milliarden Jahren</strong> – gab es noch keine Erde. 
+    Nur eine riesige Wolke aus Staub und Gas, die durch den Weltraum schwebte.<br><br>
+    Stell dir vor, jemand pustet Puderzucker in die Luft. So ungefähr sah das aus – 
+    nur viel, viel grösser. <strong>So gross wie unser ganzes Sonnensystem!</strong>
+  </p>
+
+  <!-- Dust animation -->
+  <div class="dust-animation" id="dustAnim"></div>
+
+  <div class="highlight-box" style="border-color:#FF9A3C">
+    <div class="hb-title" style="color:#FF9A3C">🤔 Woher kam der Staub?</div>
+    Aus einem alten Stern, der explodiert war – lange, lange bevor die Erde entstand. 
+    Alle Sterne enden irgendwann in einer riesigen Explosion. Der Staub davon flog durch den Weltraum... 
+    und wurde eines Tages unsere Erde.
+  </div>
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(0)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FF9A3C,#FFD166);" onclick="goTo(2)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH 2: ZUSAMMENKLEBEN -->
+<div class="chapter" id="ch2">
+  <div class="step-number">Schritt 2 von 7</div>
+  <span class="step-emoji">🧲</span>
+  <h2 class="step-title" style="color:#06D6FF">Die Staubkörnchen kleben zusammen</h2>
+  <p class="step-body">
+    Die kleinen Staubkörnchen zogen sich gegenseitig an – <strong>wie kleine Magnete</strong>. 
+    Wenn zwei Körnchen sich berührten, blieben sie zusammen. Dann kamen mehr dazu. 
+    Und mehr. Und immer mehr.<br><br>
+    Erst wurden es kleine Steinchen, dann Felsen, dann riesengrosse Brocken – 
+    <strong>so gross wie Berge</strong>.
+  </p>
+
+  <div class="step-cards">
+    <div class="mini-card">
+      <span class="mc-icon">🌫️</span>
+      <div class="mc-label">Staubkörnchen</div>
+      <div class="mc-sub">Winzig klein</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🪨</span>
+      <div class="mc-label">Steinchen</div>
+      <div class="mc-sub">Kleben zusammen</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">⛰️</span>
+      <div class="mc-label">Riesenbrocken</div>
+      <div class="mc-sub">Immer grösser</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🌍</span>
+      <div class="mc-label">Planet!</div>
+      <div class="mc-sub">Fertig 🎉</div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(1)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#06D6FF,#06FFB4);" onclick="goTo(3)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH 3: FEUERBALL -->
+<div class="chapter" id="ch3">
+  <div class="step-number">Schritt 3 von 7</div>
+  <span class="step-emoji">🔥</span>
+  <h2 class="step-title" style="color:#FF6B4A">Die Erde war ein Feuerball</h2>
+  <p class="step-body">
+    Als all die Steine zusammenkamen, wurde es <strong>unglaublich heiss</strong>. 
+    Durch die vielen Einschläge und das ganze Gewicht wurde die Erde so heiss, 
+    dass das Gestein schmolz – wie Butter in der Pfanne.<br><br>
+    Die ganze Erde war flüssig und glühend. <strong>So heiss wie die Oberfläche der Sonne!</strong>
+  </p>
+
+  <div class="planet-anim" style="background:radial-gradient(circle at 35% 35%, #FF9A3C, #cc3300);">
+    <div class="planet-ring" style="inset:-20px;"></div>
+    <div class="planet-ring" style="inset:-40px; animation-delay:1s;"></div>
+    <div class="planet-ring" style="inset:-60px; animation-delay:2s;"></div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#FF6B4A">
+    <div class="hb-title" style="color:#FF6B4A">🌋 Was ist mit dem Eisen passiert?</div>
+    Das flüssige Eisen war schwer und sank in die Mitte der Erde. 
+    Deshalb hat die Erde heute einen <strong>heissen Eisenkern</strong> in der Mitte – 
+    und dieser Kern erzeugt das Magnetfeld, das uns vor gefährlichen Strahlen aus dem Weltraum schützt!
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(2)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FF6B4A,#FF9A3C);" onclick="goTo(4)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH 4: KOLLISION / MOND -->
+<div class="chapter" id="ch4">
+  <div class="step-number">Schritt 4 von 7</div>
+  <span class="step-emoji">💥</span>
+  <h2 class="step-title" style="color:#C77DFF">Der grösste Crash aller Zeiten</h2>
+  <p class="step-body">
+    Als die Erde noch jung und flüssig war, kam ein <strong>riesiger Planet</strong> angeflogen – 
+    so gross wie der Mars! Sein Name war <strong>Theia</strong>.<br><br>
+    Er ist voll in die Erde gekracht. Es hat gespritzt wie wenn man einen Stein in Matsch wirft – 
+    nur millionenfach grösser. Riesige Mengen Gestein flogen in den Weltraum hinaus.
+  </p>
+
+  <div class="collision-wrap">
+    <div class="col-earth">🌍</div>
+    <div class="col-theia">🪨</div>
+    <div class="col-boom">💥</div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#C77DFF">
+    <div class="hb-title" style="color:#C77DFF">🌕 Und das Gestein?</div>
+    Das herausgeschleuderte Gestein schwebte als Ring um die Erde. 
+    Genau wie der Staub am Anfang: Die Stücke zogen sich an, klebten zusammen – 
+    und wurden der <strong>Mond</strong>! Der Mond ist also ein Stück Erde! 🌕
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(3)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#C77DFF,#FF6B9D);" onclick="goTo(5)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH 5: ABKÜHLEN / KRUSTE -->
+<div class="chapter" id="ch5">
+  <div class="step-number">Schritt 5 von 7</div>
+  <span class="step-emoji">❄️</span>
+  <h2 class="step-title" style="color:#06FFB4">Die Erde kühlt sich ab</h2>
+  <p class="step-body">
+    Nach sehr langer Zeit – Millionen von Jahren – begann die Erde sich abzukühlen. 
+    Die Oberfläche wurde hart, <strong>wie eine Kruste auf einer heissen Pizza</strong>.<br><br>
+    Unter der Kruste ist es aber immer noch heiss und flüssig – auch heute noch! 
+    Wenn ein Vulkan ausbricht, siehst du dieses flüssige Gestein – 
+    man nennt es <strong>Lava</strong>.
+  </p>
+
+  <div class="step-cards">
+    <div class="mini-card">
+      <span class="mc-icon">🌋</span>
+      <div class="mc-label">Lava</div>
+      <div class="mc-sub">Flüssiges Gestein von innen</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🏔️</span>
+      <div class="mc-label">Gebirge</div>
+      <div class="mc-sub">Entstehen durch Druck</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🌑</span>
+      <div class="mc-label">Kruste</div>
+      <div class="mc-sub">Harte Schale aussen</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#06FFB4">
+    <div class="hb-title" style="color:#06FFB4">🍕 Der Pizza-Vergleich</div>
+    Stell dir die Erde wie eine riesige Pizza vor: 
+    Die <strong>Kruste aussen</strong> ist hart – das ist der Boden, auf dem wir stehen. 
+    Der <strong>Käse drunter</strong> ist noch heiss und zäh-flüssig. 
+    Und in der <strong>Mitte</strong> ist der heisseste Eisenkern.
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(4)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#06FFB4,#06D6FF);" onclick="goTo(6)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH 6: WASSER / REGEN -->
+<div class="chapter" id="ch6">
+  <div class="step-number">Schritt 6 von 7</div>
+  <span class="step-emoji">🌧️</span>
+  <h2 class="step-title" style="color:#06D6FF">Es fängt an zu regnen</h2>
+  <p class="step-body">
+    Als die Erde sich abkühlte, begann Dampf aus dem Inneren aufzusteigen. 
+    Dieser Dampf bildete Wolken – und dann regnete es.<br><br>
+    <strong>Millionen von Jahren lang regnete es.</strong> 
+    So viel, dass die tiefen Stellen auf der Erde sich füllten – 
+    und die <strong>Meere entstanden</strong>!
+  </p>
+
+  <div style="font-size:5rem;text-align:center;margin:20px auto;">🌧️</div>
+
+  <div class="step-cards">
+    <div class="mini-card">
+      <span class="mc-icon">☁️</span>
+      <div class="mc-label">Wolken</div>
+      <div class="mc-sub">Aus Dampf geformt</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🌧️</span>
+      <div class="mc-label">Regen</div>
+      <div class="mc-sub">Millionen Jahre lang</div>
+    </div>
+    <div class="mini-card">
+      <span class="mc-icon">🌊</span>
+      <div class="mc-label">Meere</div>
+      <div class="mc-sub">Füllen sich langsam</div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(5)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#06D6FF,#C77DFF);" onclick="goTo(7)">Weiter →</button>
+  </div>
+</div>
+
+<!-- CH 7: LEBEN / MOND -->
+<div class="chapter" id="ch7">
+  <div class="step-number">Schritt 7 von 7</div>
+  <span class="step-emoji">🦠</span>
+  <h2 class="step-title" style="color:#FFD166">Das erste Leben</h2>
+  <p class="step-body">
+    Im warmen Wasser passierte etwas Unglaubliches: 
+    Die ersten winzigen Lebewesen entstanden – <strong>so klein, dass man sie nicht sehen konnte</strong>. 
+    Viel, viel kleiner als ein Sandkorn.<br><br>
+    Diese winzigen Wesen atmeten und lebten – und nach Millionen von Jahren 
+    wurden aus ihnen immer grössere und kompliziertere Tiere. Irgendwann: 
+    Fische. Dinosaurier. Menschen. <strong>Du!</strong>
+  </p>
+
+  <div class="orbit-wrap">
+    <div class="orbit-earth">🌍</div>
+    <div class="orbit-ring"></div>
+    <div class="orbit-moon">🌕</div>
+  </div>
+
+  <div class="highlight-box" style="border-color:#FFD166">
+    <div class="hb-title" style="color:#FFD166">🌕 Der Mond passt auf uns auf</div>
+    Der Mond – der aus der Erde entstanden ist – ist kein Zufall. 
+    Er hält die Erde <strong>stabil</strong>, damit sie nicht wild hin- und herkippt. 
+    Ohne den Mond gäbe es vielleicht kein Leben auf der Erde!
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-prev" onclick="goTo(6)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FFD166,#06FFB4);" onclick="goTo(8)">Zur Zusammenfassung 🌍</button>
+  </div>
+</div>
+
+<!-- CH 8: TIMELINE ZUSAMMENFASSUNG -->
+<div class="chapter" id="ch8">
+  <span class="step-emoji">📖</span>
+  <h2 class="step-title" style="color:#06FFB4">Die ganze Geschichte<br>auf einen Blick</h2>
+
+  <div class="timeline">
+    <div class="tl-item" style="animation-delay:0.1s">
+      <div class="tl-dot" style="background:rgba(255,154,60,0.2);border:2px solid #FF9A3C">💥</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#FF9A3C">Vor 4.6 Mrd Jahren</div>
+        <div class="tl-text">Eine riesige Staubwolke beginnt sich zusammenzuziehen</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.2s">
+      <div class="tl-dot" style="background:rgba(6,214,255,0.2);border:2px solid #06D6FF">🧲</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#06D6FF">Vor 4.5 Mrd Jahren</div>
+        <div class="tl-text">Staubkörnchen kleben zusammen – die Erde wächst</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.3s">
+      <div class="tl-dot" style="background:rgba(255,107,74,0.2);border:2px solid #FF6B4A">🔥</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#FF6B4A">Vor 4.5 Mrd Jahren</div>
+        <div class="tl-text">Die Erde ist ein glühender Feuerball aus flüssigem Gestein</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.4s">
+      <div class="tl-dot" style="background:rgba(199,125,255,0.2);border:2px solid #C77DFF">💫</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#C77DFF">Vor 4.5 Mrd Jahren</div>
+        <div class="tl-text">Planet Theia trifft die Erde – der Mond entsteht aus dem Schutt</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.5s">
+      <div class="tl-dot" style="background:rgba(6,255,180,0.2);border:2px solid #06FFB4">❄️</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#06FFB4">Vor 4.4 Mrd Jahren</div>
+        <div class="tl-text">Die Oberfläche kühlt ab – eine harte Kruste entsteht</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.6s">
+      <div class="tl-dot" style="background:rgba(6,214,255,0.2);border:2px solid #06D6FF">🌊</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#06D6FF">Vor 4 Mrd Jahren</div>
+        <div class="tl-text">Milliarden Jahre Regen – die Meere füllen sich</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.7s">
+      <div class="tl-dot" style="background:rgba(255,209,102,0.2);border:2px solid #FFD166">🦠</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#FFD166">Vor 3.8 Mrd Jahren</div>
+        <div class="tl-text">Erste winzige Lebewesen im Meer – der Beginn allen Lebens</div>
+      </div>
+    </div>
+    <div class="tl-item" style="animation-delay:0.8s">
+      <div class="tl-dot" style="background:rgba(255,107,157,0.2);border:2px solid #FF6B9D">🧍</div>
+      <div class="tl-content">
+        <div class="tl-time" style="color:#FF6B9D">Vor 300'000 Jahren</div>
+        <div class="tl-text">Die ersten Menschen erscheinen – und irgendwann: Du! 🎉</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns" style="margin-top:40px">
+    <button class="btn btn-prev" onclick="goTo(7)">← Zurück</button>
+    <button class="btn btn-next" style="background:linear-gradient(135deg,#FF9A3C,#FF6B9D);" onclick="goTo(0)">Von vorne! 🔄</button>
+  </div>
+</div>
+
+<script>
+  // STARS
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 180; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*4+2}s;--op:${Math.random()*0.7+0.2};animation-delay:${Math.random()*5}s;`;
+    starsEl.appendChild(s);
+  }
+
+  // DUST ANIMATION
+  const dustEl = document.getElementById('dustAnim');
+  if (dustEl) {
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'dust-particle';
+      const size = Math.random() * 12 + 4;
+      const x = Math.random() * 160 + 20;
+      const y = Math.random() * 160 + 20;
+      p.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${x}px;top:${y}px;
+        --d:${Math.random()*3+2}s;
+        --delay:${Math.random()*3}s;
+        --tx1:${(Math.random()-0.5)*40}px;--ty1:${(Math.random()-0.5)*40}px;
+        --tx2:${(Math.random()-0.5)*40}px;--ty2:${(Math.random()-0.5)*40}px;
+        --tx3:${(Math.random()-0.5)*40}px;--ty3:${(Math.random()-0.5)*40}px;
+        opacity:${Math.random()*0.5+0.3};
+        background:rgba(${Math.floor(Math.random()*80+175)},${Math.floor(Math.random()*60+100)},${Math.floor(Math.random()*40)},0.7);
+      `;
+      dustEl.appendChild(p);
+    }
+  }
+
+  // NAV
+  const chapters = document.querySelectorAll('.chapter');
+  const dotsEl = document.getElementById('navDots');
+  const total = chapters.length;
+  let current = 0;
+
+  // Create dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i===0?' active':'');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= total) return;
+    current = idx;
+    chapters[idx].scrollIntoView({ behavior: 'smooth' });
+    updateNav();
+  }
+
+  function updateNav() {
+    document.querySelectorAll('.nav-dot').forEach((d,i) => {
+      d.classList.toggle('active', i === current);
+    });
+    const pct = (current / (total-1)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  // Intersection observer for scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+        const idx = Array.from(chapters).indexOf(entry.target);
+        current = idx;
+        updateNav();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  chapters.forEach(ch => observer.observe(ch));
+
+  // Keyboard nav
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goTo(current+1);
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') goTo(current-1);
+  });
+</script>
+</body>
+</html>
