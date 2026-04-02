@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weltraum-Quiz</title>
+<style>
+body{margin:0;background:#04060e;color:white;font-family:Trebuchet MS,sans-serif;padding:20px;}
+h1{text-align:center;font-size:2rem;margin:20px 0 6px;color:#FFD166;}
+.sub{text-align:center;color:rgba(255,255,255,0.4);margin-bottom:24px;font-size:0.9rem;}
+.prog{height:6px;background:rgba(255,255,255,0.1);border-radius:99px;margin-bottom:8px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#FF9A3C,#FFD166);border-radius:99px;transition:width 0.4s;}
+.plabel{display:flex;justify-content:space-between;font-size:0.78rem;color:rgba(255,255,255,0.35);margin-bottom:20px;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:24px 20px;margin-bottom:16px;}
+.cat{font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;display:inline-block;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,0.07);}
+.qtxt{font-size:1.05rem;font-weight:700;line-height:1.6;margin-bottom:18px;}
+.opt{display:block;width:100%;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 16px;color:white;font-family:Trebuchet MS,sans-serif;font-size:0.95rem;font-weight:600;text-align:left;cursor:pointer;margin-bottom:10px;transition:all 0.2s;}
+.opt:hover:not(:disabled){background:rgba(255,255,255,0.1);transform:translateX(3px);}
+.opt.ok{background:rgba(6,255,180,0.12);border-color:#06FFB4;color:#06FFB4;}
+.opt.ko{background:rgba(255,80,80,0.1);border-color:#FF5050;color:#FF8080;}
+.opt.dim{opacity:0.3;}
+.fb{margin-top:14px;padding:12px 16px;border-radius:12px;font-size:0.9rem;line-height:1.6;display:none;}
+.fb.show{display:block;}
+.fb.ok{background:rgba(6,255,180,0.1);border:1px solid rgba(6,255,180,0.2);color:#06FFB4;}
+.fb.ko{background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.15);color:#FF8080;}
+.nxt{display:none;width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#FF9A3C,#FFD166);color:#04060e;font-family:Trebuchet MS,sans-serif;font-size:1rem;font-weight:800;cursor:pointer;margin-top:6px;}
+.nxt.show{display:block;}
+.nxt:hover{opacity:0.9;}
+#res{display:none;text-align:center;padding:20px 0;}
+.res-em{font-size:5rem;display:block;margin-bottom:14px;}
+.res-title{font-size:1.8rem;font-weight:900;margin-bottom:8px;}
+.res-score{font-size:4rem;font-weight:900;color:#FFD166;display:block;margin:8px 0 20px;}
+.box{border-radius:18px;padding:20px;margin:12px 0;text-align:left;}
+.praise{background:rgba(255,209,102,0.08);border:2px solid rgba(255,209,102,0.2);}
+.praise h3{color:#FFD166;margin-bottom:8px;}
+.tips{background:rgba(6,214,255,0.06);border:2px solid rgba(6,214,255,0.15);}
+.tips h3{color:#06D6FF;margin-bottom:10px;}
+.tip{margin-bottom:8px;font-size:0.9rem;color:rgba(255,255,255,0.75);line-height:1.5;}
+.missed{background:rgba(255,80,80,0.05);border:1px solid rgba(255,80,80,0.15);}
+.missed h3{color:#FF8080;margin-bottom:10px;}
+.mi{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.mi:last-child{border:none;margin:0;}
+.miq{font-size:0.8rem;color:rgba(255,255,255,0.4);}
+.mia{font-size:0.9rem;color:#06FFB4;font-weight:700;}
+.replay{padding:14px 32px;border-radius:99px;border:none;background:linear-gradient(135deg,#FF9A3C,#FFD166);color:#04060e;font-family:Trebuchet MS,sans-serif;font-size:1rem;font-weight:800;cursor:pointer;margin-top:20px;}
+.home{display:block;margin-top:14px;color:rgba(255,255,255,0.3);font-size:0.85rem;text-decoration:none;}
+.dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:20px;}
+.dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.15);font-size:0.55rem;display:flex;align-items:center;justify-content:center;}
+.dot.ok{background:#FFD166;border-color:#FFD166;}
+.dot.ko{background:#FF5050;border-color:#FF5050;}
+</style>
+</head>
+<body>
+<h1>&#x1F9E0; Weltraum-Quiz!</h1>
+<p class="sub">12 Fragen &#8211; teste dein Wissen!</p>
+<div class="dots" id="dots"></div>
+<div class="prog"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+<div class="plabel"><span id="pt">Frage 1 von 12</span><span id="ps">0 Punkte</span></div>
+<div id="qa"></div>
+<div id="res"></div>
+<script>
+var Q=[
+{cat:"&#x1F30D; Erde",cc:"#FF9A3C",q:"Vor wie vielen Jahren ist die Erde entstanden?",o:["1 Million Jahren","4.5 Milliarden Jahren","100 Millionen Jahren","10 Milliarden Jahren"],c:1,fb:"Richtig! Die Erde ist 4.5 Milliarden Jahre alt - unvorstellbar lang!"},
+{cat:"&#x1F30D; Erde",cc:"#FF9A3C",q:"Woraus ist die Erde am Anfang entstanden?",o:["Aus Wasser","Aus Eis","Aus einer Staubwolke im Weltraum","Aus einem anderen Planeten"],c:2,fb:"Genau! Winzige Staubkoernchen haben sich zusammengezogen wie kleine Magnete."},
+{cat:"&#x1F30D; Erde",cc:"#FF9A3C",q:"Wie war die Erde kurz nach ihrer Entstehung?",o:["Kalt und schneebedeckt","Ein gluehender Feuerball","Blau und voller Wasser","Gruen mit viel Wald"],c:1,fb:"Ja! Die junge Erde war ein gluehender Feuerball - erst nach Millionen Jahren kuehlte sie ab."},
+{cat:"&#x1F30D; Erde",cc:"#FF9A3C",q:"Wie sind die Meere entstanden?",o:["Kometen brachten Wasser","Millionen Jahre Regen","Vulkane spuckten Wasser","Die Sonne schmolz Eis"],c:1,fb:"Super! Als die Erde sich abkuehlte, regnete es Millionen Jahre lang - so fuellten sich die Meere."},
+{cat:"&#x1F41C; Ameise",cc:"#06D6FF",q:"Im Modell: Was ist so gross wie ein Fussball?",o:["Die Erde","Der Mond","Die Sonne","Jupiter"],c:2,fb:"Richtig! Die Sonne ist ein Fussball - und steht 25 Meter von der Ameise entfernt."},
+{cat:"&#x1F41C; Ameise",cc:"#06D6FF",q:"Wie lange muss die Ameise taeglich Naters-Brig laufen um die Sonne zu erreichen?",o:["1 Jahr","32 Jahre","100 Jahre","1000 Jahre"],c:1,fb:"Genau - 32 Jahre! So lange wie ein Erwachsener schon lebt."},
+{cat:"&#x1F41C; Ameise",cc:"#06D6FF",q:"Wie heisst der naechste Stern nach unserer Sonne?",o:["Sirius","Andromeda","Proxima Centauri","Polarstern"],c:2,fb:"Bravo! Proxima Centauri - trotzdem braeuchte die Ameise 6400 Jahre um dorthin zu laufen!"},
+{cat:"&#x1F41C; Ameise",cc:"#06D6FF",q:"Was ist Andromeda?",o:["Ein Planet","Eine Nachbar-Galaxie","Ein Schwarzes Loch","Ein Mond"],c:1,fb:"Super! Andromeda ist unsere naechste Nachbar-Galaxie mit einer Billion Sternen!"},
+{cat:"&#x1F9BF; Schwarzes Loch",cc:"#C77DFF",q:"Was kann einem Schwarzen Loch NICHT entkommen?",o:["Nur Steine","Nur Gas","Nur Licht","Gar nichts - alles wird eingezogen"],c:3,fb:"Richtig! Nichts kann entkommen - nicht einmal das Licht!"},
+{cat:"&#x1F9BF; Schwarzes Loch",cc:"#C77DFF",q:"Wie entsteht ein Schwarzes Loch?",o:["Zwei Planeten stossen zusammen","Ein riesiger Stern explodiert und faellt zusammen","Die Sonne verlischt","Kometen kleben zusammen"],c:1,fb:"Genau! Supernova - der Stern explodiert und faellt in sich zusammen."},
+{cat:"&#x1F9BF; Schwarzes Loch",cc:"#C77DFF",q:"Was ist Spaghettifizierung?",o:["Schwarze Loecher essen Nudeln","Man wird hineingezogen und in die Laenge gestreckt","Sterne drehen sich","Gas kreist umher"],c:1,fb:"Haha ja! Die Schwerkraft streckt alles wie eine Nudel - daher der lustige Name!"},
+{cat:"&#x1F9BF; Schwarzes Loch",cc:"#C77DFF",q:"Wann wurde das erste echte Foto eines Schwarzen Lochs gemacht?",o:["1969","2001","2019","2023"],c:2,fb:"Richtig! 2019 - ueber 200 Wissenschaftler aus aller Welt haben zusammengearbeitet!"}
+];
+var cur=0,score=0,done=false,missed=[];
+function initDots(){var r=document.getElementById("dots");r.innerHTML="";for(var i=0;i<Q.length;i++){var d=document.createElement("div");d.className="dot";d.id="d"+i;r.appendChild(d);}}
+function upd(){document.getElementById("pt").textContent="Frage "+(cur+1)+" von "+Q.length;document.getElementById("ps").textContent=score+" Punkte";document.getElementById("pf").style.width=((cur/Q.length)*100)+"%";}
+function renderQ(){done=false;upd();var q=Q[cur];var L=["A","B","C","D"];var btns="";for(var i=0;i<q.o.length;i++){btns+='<button class="opt" onclick="pick('+i+')" id="o'+i+'">'+L[i]+'. '+q.o[i]+'</button>';}var lbl=cur<Q.length-1?"Naechste Frage &rarr;":"Ergebnis sehen &#127942;";document.getElementById("qa").innerHTML='<div class="card">'+'<span class="cat" style="color:'+q.cc+'">'+q.cat+'</span>'+'<div class="qtxt">'+q.q+'</div>'+btns+'<div class="fb" id="fb"></div>'+'</div>'+'<button class="nxt" id="nxt" onclick="goNext()">'+lbl+'</button>';}
+function pick(i){if(done)return;done=true;var q=Q[cur];for(var j=0;j<q.o.length;j++){var b=document.getElementById("o"+j);b.disabled=true;if(j===q.c)b.classList.add("ok");else if(j===i)b.classList.add("ko");else b.classList.add("dim");}var fb=document.getElementById("fb");var dot=document.getElementById("d"+cur);if(i===q.c){score++;dot.classList.add("ok");dot.textContent="*";fb.className="fb ok show";fb.textContent="Richtig! "+q.fb;}else{dot.classList.add("ko");dot.textContent="x";fb.className="fb ko show";fb.textContent="Nicht ganz. Richtig: "+q.o[q.c]+". "+q.fb;missed.push({q:q.q,a:q.o[q.c]});}document.getElementById("nxt").classList.add("show");document.getElementById("ps").textContent=score+" Punkte";}
+function goNext(){cur++;if(cur>=Q.length)showRes();else renderQ();}
+function showRes(){document.getElementById("pf").style.width="100%";document.getElementById("pt").textContent="Fertig!";var p=score/Q.length;var em,title,txt;if(p===1){em="&#127942;";title="Weltmeister!";txt="Wow, alle "+Q.length+" richtig! Du bist ein echter Weltraum-Forscher!";}else if(p>=0.83){em="&#127775;";title="Weltraum-Superstar!";txt=score+" von "+Q.length+" - fantastisch!";}else if(p>=0.67){em="&#127881;";title="Super gemacht!";txt=score+" von "+Q.length+" - toll! Lies nochmal und du wirst noch besser!";}else if(p>=0.5){em="&#128522;";title="Gut gekaempft!";txt=score+" von "+Q.length+" - nicht schlecht! Lies die Abenteuer nochmal!";}else{em="&#127807;";title="Du faengst an!";txt=score+" von "+Q.length+" - Neugier ist das Wichtigste! Du schaffst das!";}var missHTML="";if(missed.length===0){missHTML='<div class="box missed" style="background:rgba(6,255,180,0.06);border-color:rgba(6,255,180,0.2)"><h3 style="color:#06FFB4">Keine Fehler - perfekt!</h3></div>';}else{var mi="";for(var i=0;i<missed.length;i++)mi+='<div class="mi"><div class="miq">'+missed[i].q+'</div><div class="mia">Richtig: '+missed[i].a+'</div></div>';missHTML='<div class="box missed"><h3>Diese Fragen nochmal anschauen:</h3>'+mi+'</div>';}document.getElementById("qa").style.display="none";document.getElementById("res").style.display="block";document.getElementById("res").innerHTML='<span class="res-em">'+em+'</span>'+'<div class="res-title">'+title+'</div>'+'<span class="res-score">'+score+" / "+Q.length+'</span>'+'<div class="box praise"><h3>Dein Lob</h3><p>'+txt+'</p></div>'+missHTML+'<div class="box tips"><h3>So wirst du noch besser</h3>'+'<div class="tip">&#128214; Lies die Abenteuer nochmal!</div>'+'<div class="tip">&#128257; Mache das Quiz nochmal!</div>'+'<div class="tip">&#128483; Erklaere jemandem was du gelernt hast!</div>'+'<div class="tip">&#128269; Frage nach noch mehr Weltraum-Fakten!</div>'+'</div>'+'<button class="replay" onclick="restart()">&#128257; Nochmal!</button>'+'<a href="index.html" class="home">&#8592; Startseite</a>';}
+function restart(){cur=0;score=0;done=false;missed=[];document.getElementById("res").style.display="none";document.getElementById("qa").style.display="block";initDots();renderQ();}
+initDots();renderQ();
+</script>
+</body>
+</html>
